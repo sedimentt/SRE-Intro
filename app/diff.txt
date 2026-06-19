@@ -1,0 +1,73 @@
+diff --git a/app/events/Dockerfile b/app/events/Dockerfile
+index c45a68c..b6cb18d 100644
+--- a/app/events/Dockerfile
++++ b/app/events/Dockerfile
+@@ -6,4 +6,6 @@ RUN pip install --no-cache-dir -r requirements.txt
+ COPY main.py .
+ 
+ EXPOSE 8081
++RUN addgroup --system app && adduser --system --ingroup app app
++USER app
+ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8081"]
+diff --git a/app/gateway/Dockerfile b/app/gateway/Dockerfile
+index 68ef075..71c6891 100644
+--- a/app/gateway/Dockerfile
++++ b/app/gateway/Dockerfile
+@@ -6,4 +6,6 @@ RUN pip install --no-cache-dir -r requirements.txt
+ COPY main.py .
+ 
+ EXPOSE 8080
++RUN addgroup --system app && adduser --system --ingroup app app
++USER app
+ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+diff --git a/app/gateway/main.py b/app/gateway/main.py
+index c86db33..ad81b56 100644
+--- a/app/gateway/main.py
++++ b/app/gateway/main.py
+@@ -329,9 +329,33 @@ async def pay_reservation(reservation_id: str):
+     try:
+         pay_resp = await payments_cb.call(lambda: call_with_retry(_charge, target="payments"))
+         payment_ref = pay_resp.json().get("payment_ref", "unknown")
++    except httpx.ConnectError:
++        log.error("payments service unavailable")
++
++        return JSONResponse(
++            status_code=503,
++            content={
++                "error": "payments_unavailable",
++                "message": (
++                    "Payment service is temporarily down. "
++                    "Your reservation is held — try again in a few minutes."
++                ),
++                "reservation_id": reservation_id,
++            },
++        )
++
+     except CircuitOpenError:
+-        log.error("circuit open, skipping payments call")
+-        raise HTTPException(503, "Payment service temporarily unavailable (circuit open)")
++        return JSONResponse(
++            status_code=503,
++            content={
++                "error": "payments_unavailable",
++                "message": (
++                    "Payment service is temporarily down. "
++                    "Your reservation is held — try again in a few minutes."
++                ),
++                "reservation_id": reservation_id,
++            },
++        )
+     except httpx.TimeoutException:
+         raise HTTPException(504, "Payment service timeout")
+     except httpx.HTTPStatusError as e:
+diff --git a/app/payments/Dockerfile b/app/payments/Dockerfile
+index 7f9e7c1..8cf997d 100644
+--- a/app/payments/Dockerfile
++++ b/app/payments/Dockerfile
+@@ -6,4 +6,6 @@ RUN pip install --no-cache-dir -r requirements.txt
+ COPY main.py .
+ 
+ EXPOSE 8082
++RUN addgroup --system app && adduser --system --ingroup app app
++USER app
+ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8082"]
