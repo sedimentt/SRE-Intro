@@ -12,10 +12,12 @@ spec:
       labels:
         app: gateway
     spec:
+      imagePullSecrets:
+        - name: ghcr-secret
       containers:
         - name: gateway
-          image: quickticket-gateway:v1
-          imagePullPolicy: Never
+          image: ghcr.io/sedimentt/quickticket-gateway:c0e2c34494d889ecb8146bb51a4f67f5c8731c08
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           livenessProbe:
