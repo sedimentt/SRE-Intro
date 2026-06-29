@@ -30,7 +30,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: gateway
-          image: ghcr.io/sedimentt/quickticket-gateway:8f5e23582570969fee3b4214172f59c14a9c334e
+          image: ghcr.io/sedimentt/quickticket-gateway:2f80147fa4da31a60498b50c5752c4b34c10a9b1
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
