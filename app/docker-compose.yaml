@@ -10,6 +10,15 @@ services:
     depends_on:
       - events
       - payments
+      - notifications
+
+  notifications:
+    build: ./notifications
+    ports:
+      - "8083:8083"
+    environment:
+      - NOTIFY_FAILURE_RATE=${NOTIFY_FAILURE_RATE:-0.0}
+      - NOTIFY_LATENCY_MS=${NOTIFY_LATENCY_MS:-0}
 
   events:
     build: ./events
