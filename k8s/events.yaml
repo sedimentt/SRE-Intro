@@ -16,7 +16,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: events
-          image: ghcr.io/sedimentt/quickticket-events:1a13f2ee8615ac515c36993c02b166a21bb80060
+          image: ghcr.io/sedimentt/quickticket-events:8101bf01efaab8c85bb5006ec09f3cda14d56793
           imagePullPolicy: Always
           ports:
             - containerPort: 8081
