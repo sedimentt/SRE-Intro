@@ -16,7 +16,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: payments
-          image: ghcr.io/sedimentt/quickticket-payments:cf8e6c2774e03403e4bfb0af7ef867535d1d2b9c
+          image: ghcr.io/sedimentt/quickticket-payments:0885bb32edde6818a29300703da8f38b0929f502
           imagePullPolicy: Always
           ports:
             - containerPort: 8082
